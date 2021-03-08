@@ -278,7 +278,7 @@ def individual_labels(y, unique_emotions):
     return [y[[emotion]].values for emotion in unique_emotions]
 
 
-def embedded_vectors(GloVe_file, X_train, X_test):
+def embedded_vectors(GloVe_path, X_train, X_test):
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(X_train)
 
@@ -291,10 +291,13 @@ def embedded_vectors(GloVe_file, X_train, X_test):
     v_size = len(tokenizer.word_index) + 1
 
     embed_dict = dict()
-    with open(GloVe_file, 'r') as file:
-        for line in file:
-            records = line.split()
-            embed_dict[records[0]] = np.asarray(records[1:], dtype='float32')
+    _, _, files = next(walk(GloVe_path))
+    
+    for file in files:
+        with open(GloVe_path+file, 'r') as file:
+            for line in file:
+                records = line.split()
+                embed_dict[records[0]] = np.asarray(records[1:], dtype='float32')
 
     matrix = np.zeros((v_size, 100))
     for word, index in tokenizer.word_index.items():
@@ -321,7 +324,7 @@ def main_preprocessing(paths):
     print('Starting to preprocess...')
     # paths to content of the data folder
     emotions_path = paths[0]
-    GloVe_file = paths[1]
+    GloVe_path = paths[1]
     COVID_file = paths[2]
     MED_file = paths[3]
 
@@ -347,7 +350,7 @@ def main_preprocessing(paths):
     y_train = individual_labels(y_train, unique_emotions)
     y_test = individual_labels(y_test, unique_emotions)
 
-    X_train, X_test, v_size, matrix, tokenizer = embedded_vectors(GloVe_file, X_train, X_test)
+    X_train, X_test, v_size, matrix, tokenizer = embedded_vectors(GloVe_path, X_train, X_test)
 
     C_vec, M_vec = convert_df_to_vec(tokenizer, COVID_df, MED_df)
 
