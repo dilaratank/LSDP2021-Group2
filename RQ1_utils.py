@@ -1,3 +1,16 @@
+# Imports
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk import tokenize
+nltk.download('punkt')
+import pandas as pd
+from pandas import DataFrame
+import numpy as np
+from tqdm import tqdm
+from collections import Counter
+import matplotlib.pyplot as plt
+import os
+
 # Data Preprocessing
 def split_on_dialogue(data_path):
     """
@@ -157,7 +170,7 @@ def get_symptoms_data(df):
 
 
 # Evaluation
-def accuracy(df):
+def accuracy(df, trainer):
     """
     This function computes the accuracy score, given a dataframe.
     """
