@@ -7,6 +7,7 @@
 # - Imports
 # - Preprocessing
 # - Classification model
+# - Evaluation
 # - Annotation
 # - Results
 #############################
@@ -134,6 +135,16 @@ def load_dfs(saved_path):
     with open(saved_path+'MED_df.txt', 'rb') as filehandle:
         MED_df = pickle.load(filehandle)
     return COVID_df, MED_df
+
+
+def load_trained_model(path, name):
+    return load_model(path+name)
+
+
+def load_history(saved_path, name):
+    with open(saved_path+name, 'rb') as filehandle:
+        history = pickle.load(filehandle)
+    return history
 
 
 ################
@@ -292,7 +303,7 @@ def embedded_vectors(GloVe_path, X_train, X_test):
 
     embed_dict = dict()
     _, _, files = next(walk(GloVe_path))
-    
+
     for file in files:
         with open(GloVe_path+file, 'r') as file:
             for line in file:
@@ -308,19 +319,7 @@ def embedded_vectors(GloVe_path, X_train, X_test):
     return X_train, X_test, v_size, matrix, tokenizer
 
 
-def convert_df_to_vec(tokenizer, COVID_df, MED_df):
-    COVID_list = COVID_df['text'].tolist()
-    MED_list = MED_df['text'].tolist()
-
-    COVID = tokenizer.texts_to_sequences(COVID_list)
-    MED = tokenizer.texts_to_sequences(MED_list)
-
-    COVID_vec = pad_sequences(COVID, padding='post', maxlen=200)
-    MED_vec = pad_sequences(MED, padding='post', maxlen=200)
-    return COVID_vec, MED_vec
-
-
-def main_preprocessing(paths):
+def preprocessing(paths):
     print('Starting to preprocess...')
     # paths to content of the data folder
     emotions_path = paths[0]
@@ -339,8 +338,15 @@ def main_preprocessing(paths):
     print('Preprocessing MedDialog dataset (English)...')
     MED_df = process_dataset(MED_file, emotions)
 
-    print('Creating train and test set...')
     merged_df = binarizer(append_dfs(COVID_df, MED_df))
+    print('Preprocessing done!')
+
+    return COVID_df, MED_df, unique_emotions, merged_df
+
+
+def converting(merged_df, unique_emotions, paths):
+    print('Starting to convert...')
+    GloVe_path = paths[1]
 
     X, y = split_x_y(merged_df)
 
@@ -351,17 +357,21 @@ def main_preprocessing(paths):
     y_test = individual_labels(y_test, unique_emotions)
 
     X_train, X_test, v_size, matrix, tokenizer = embedded_vectors(GloVe_path, X_train, X_test)
+    print('Converting done!')
 
-    C_vec, M_vec = convert_df_to_vec(tokenizer, COVID_df, MED_df)
+    return X_train, X_test, y_train, y_test, v_size, matrix, tokenizer
 
-    print('Saving the data...')
 
-    save_variables(saved_path, unique_emotions, v_size, matrix)
-    save_x_y(saved_path, X_train, X_test, y_train, y_test)
-    save_vectors(saved_path, C_vec, M_vec)
-    save_dfs(saved_path, COVID_df, MED_df)
+def convert_df_to_num(tokenizer, COVID_df, MED_df):
+    COVID_list = COVID_df['text'].tolist()
+    MED_list = MED_df['text'].tolist()
 
-    print('Done!')
+    COVID = tokenizer.texts_to_sequences(COVID_list)
+    MED = tokenizer.texts_to_sequences(MED_list)
+
+    COVID_vec = pad_sequences(COVID, padding='post', maxlen=200)
+    MED_vec = pad_sequences(MED, padding='post', maxlen=200)
+    return COVID_vec, MED_vec
 
 
 #######################
@@ -401,19 +411,80 @@ def main_model(X_train, y_train, v_size, matrix, epochs=10):
 
 def evaluate_model(model, X_test, y_test):
     score = model.evaluate(x=X_test, y=y_test, verbose=1, return_dict=True)
-    return score
+    loss = ['dense_loss', 'dense_1_loss', 'dense_2_loss', 'dense_3_loss',
+              'dense_4_loss']
+    acc = ['dense_acc', 'dense_1_acc', 'dense_2_acc', 'dense_3_acc',
+            'dense_4_acc']
+    layers = ['dense', 'dense_1', 'dense_2', 'dense_3', 'dense_4']
+
+    print('\nTotal loss: ', score['loss'])
+    for i in range(len(layers)):
+        print('')
+        print(layers[i], 'loss: ', score[loss[i]])
+        print(layers[i], 'accuracy: ', score[acc[i]])
 
 
-def plot_evaluation(score):
-    pass
+#############
+# EVALUATION
+#############
 
 
-def load_trained_model(path, name):
-    return load_model(path+name)
+def plot_loss(history):
+    df = pd.DataFrame(columns=['method', 'Epoch #', 'Loss'])
+
+    for i in range(len(history['loss'])):
+        df = df.append({'method': 'loss', 'Epoch #': i,
+                        'Loss': history['loss'][i]}, ignore_index=True)
+    for i in range(len(history['val_loss'])):
+        df = df.append({'method': 'val_loss', 'Epoch #': i,
+                        'Loss': history['val_loss'][i]}, ignore_index=True)
+
+    sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method').set_title('Total Loss')
+    plt.show()
+
+    denses = ['dense_loss', 'dense_1_loss', 'dense_2_loss', 'dense_3_loss',
+              'dense_4_loss']
+    val_denses = ['val_dense_loss', 'val_dense_1_loss', 'val_dense_2_loss',
+                  'val_dense_3_loss', 'val_dense_4_loss']
+    titles = ['dense', 'dense_1', 'dense_2', 'dense_3', 'dense_4']
+
+    for d in range(len(denses)):
+        df = pd.DataFrame(columns=['method', 'Epoch #', 'Loss'])
+
+        hd = history[denses[d]]
+        for i in range(len(hd)):
+            df = df.append({'method': 'loss', 'Epoch #': i, 'Loss': hd[i]},
+                           ignore_index=True)
+        hvd = history[val_denses[d]]
+        for i in range(len(hvd)):
+            df = df.append({'method': 'val_loss', 'Epoch #': i, 'Loss': hvd[i]},
+                           ignore_index=True)
+
+        sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method').set_title('Loss for '+ titles[d])
+        plt.show()
 
 
-def save_trained_model(path, name, model):
-    model.save(path+name)
+def plot_acc(history):
+    denses = ['dense_acc', 'dense_1_acc', 'dense_2_acc', 'dense_3_acc',
+              'dense_4_acc']
+    val_denses = ['val_dense_acc', 'val_dense_1_acc', 'val_dense_2_acc', 'val_dense_3_acc',
+                  'val_dense_4_acc']
+    titles = ['dense', 'dense_1', 'dense_2', 'dense_3', 'dense_4']
+
+    for d in range(len(denses)):
+        df = pd.DataFrame(columns=['method', 'Epoch #', 'Loss'])
+
+        hd = history[denses[d]]
+        for i in range(len(hd)):
+            df = df.append({'method': 'acc', 'Epoch #': i, 'Accuracy': hd[i]},
+                           ignore_index=True)
+        hvd = history[val_denses[d]]
+        for i in range(len(hvd)):
+            df = df.append({'method': 'val_acc', 'Epoch #': i, 'Accuracy': hvd[i]},
+                           ignore_index=True)
+
+        sns.lineplot(x='Epoch #', y='Accuracy', data=df, hue='method').set_title('Accuracy for '+ titles[d])
+        plt.show()
 
 
 #############
@@ -449,8 +520,7 @@ def compare_annotation(a, a_model, title):
         df = df.append({'method': 'trained model', 'emotion': emotion,
                         'count': count}, ignore_index=True)
 
-    sns.barplot(x='emotion', y='count', data=df, hue='method',
-                palette='binary_r').set_title(title)
+    sns.barplot(x='emotion', y='count', data=df, hue='method').set_title(title)
     plt.show()
 
 
@@ -479,6 +549,5 @@ def compare_emotions(MED, COVID, title):
     MED = OrderedDict(sorted(normalize_dict(MED).items()))
     COVID = OrderedDict(sorted(normalize_dict(COVID).items()))
     df = create_plot_df(MED, COVID)
-    sns.barplot(x='emotion', y='percentage', data=df, hue='dataset',
-                palette='binary_r').set_title(title)
+    sns.barplot(x='emotion', y='percentage', data=df, hue='dataset').set_title(title)
     plt.show()
