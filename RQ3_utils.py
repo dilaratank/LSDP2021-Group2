@@ -1,15 +1,16 @@
-if __name__ == '__main__':
-  #imports
-  import transformers
-  import pandas as pd
-  import numpy as np
-  import sklearn
-  import csv
-  from sklearn.model_selection import train_test_split
-  from sklearn.metrics import accuracy_score, precision_recall_fscore_support
-  from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments
-  import torch
-  import re
+import transformers
+import pandas as pd
+import numpy as np
+import sklearn
+import csv
+import matplotlib.pyplot as plt
+import seaborn as sn
+from collections import Counter
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments
+import torch
+import re
 
 # read tsv files and separate the labels from the text inputs
 # the different parameters account for slight differences in how the files are structured
@@ -17,7 +18,7 @@ def read_tsv(file_path, titles=True, annotated=False, questions=False):
     labels = []
     texts = []
     labeldict = dict(zip(['DEMO', 'DISE', 'FAML', 'GOAL', 'PREG', 'SOCL', 'TRMT'], [0,1,2,3,4,5,6]))
-    with open(file_path) as file:
+    with open(file_path, encoding='utf8') as file:
         tsv_reader = csv.reader(file, delimiter='\t')
         if questions:
             for line in tsv_reader:
@@ -91,7 +92,7 @@ def compute_metrics(pred):
     preds = pred.predictions.argmax(-1)
     precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, labels=[0,1,2,3,4,5,6])
     acc = accuracy_score(labels, preds)
-    returndict = {'accuracy': acc, 'mean f1': np.mean(f1)}
+    returndict = {'accuracy': acc}
     for i in range(len(label_names)):
         returndict[label_names[i]+' f1']= f1[i]
         returndict[label_names[i]+' precision']= precision[i]
@@ -192,13 +193,13 @@ def make_grouped_bar_chart(covid_pred_labels, icliniq_pred_labels):
     ax.legend()
 
     for rects in [rects1, rects2]:
-      for rect in rects:
-          height = round(rect.get_height(), 2)
-          ax.annotate('{}'.format(height),
-                      xy=(rect.get_x() + rect.get_width() / 2, height),
-                      xytext=(0, 3),  # 3 points vertical offset
-                      textcoords="offset points",
-                      ha='center', va='bottom')
+        for rect in rects:
+            height = round(rect.get_height(), 2)
+            ax.annotate('{}'.format(height),
+               xy=(rect.get_x() + rect.get_width() / 2, height),
+               xytext=(0, 3),  # 3 points vertical offset
+               textcoords="offset points",
+               ha='center', va='bottom')
 
     fig.tight_layout()
 
@@ -206,7 +207,8 @@ def make_grouped_bar_chart(covid_pred_labels, icliniq_pred_labels):
     
 
 def make_misclassification_heatmap(true, pred):
-
+    
+    label_names = ['DEMO', 'DISE', 'FAML', 'GOAL', 'PREG', 'SOCL', 'TRMT']
     named_true_labels = [label_names[i] for i in true]
     named_pred_labels =  [label_names[i] for i in pred]
 
