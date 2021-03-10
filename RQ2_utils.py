@@ -514,7 +514,7 @@ def compare_annotation(a, a_model, title):
     df = pd.DataFrame(columns=['method', 'emotion', 'count'])
 
     for emotion, count in a.items():
-        df = df.append({'method': 'emotion list', 'emotion': emotion,
+        df = df.append({'method': 'lexicon', 'emotion': emotion,
                         'count': count}, ignore_index=True)
     for emotion, count in a_model.items():
         df = df.append({'method': 'trained model', 'emotion': emotion,
