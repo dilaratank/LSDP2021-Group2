@@ -439,7 +439,7 @@ def plot_loss(history):
         df = df.append({'method': 'val_loss', 'Epoch #': i,
                         'Loss': history['val_loss'][i]}, ignore_index=True)
 
-    sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method').set_title('Total Loss')
+    sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method',palette='viridis').set_title('Total Loss')
     plt.show()
 
     denses = ['dense_loss', 'dense_1_loss', 'dense_2_loss', 'dense_3_loss',
@@ -460,7 +460,7 @@ def plot_loss(history):
             df = df.append({'method': 'val_loss', 'Epoch #': i, 'Loss': hvd[i]},
                            ignore_index=True)
 
-        sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method').set_title('Loss for '+ titles[d])
+        sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method', palette='viridis').set_title('Loss for '+ titles[d])
         plt.show()
 
 
@@ -483,7 +483,7 @@ def plot_acc(history):
             df = df.append({'method': 'val_acc', 'Epoch #': i, 'Accuracy': hvd[i]},
                            ignore_index=True)
 
-        sns.lineplot(x='Epoch #', y='Accuracy', data=df, hue='method').set_title('Accuracy for '+ titles[d])
+        sns.lineplot(x='Epoch #', y='Accuracy', data=df, hue='method',palette='viridis').set_title('Accuracy for '+ titles[d])
         plt.show()
 
 
@@ -520,7 +520,7 @@ def compare_annotation(a, a_model, title):
         df = df.append({'method': 'trained model', 'emotion': emotion,
                         'count': count}, ignore_index=True)
 
-    sns.barplot(x='emotion', y='count', data=df, hue='method').set_title(title)
+    sns.barplot(x='emotion', y='count', data=df, hue='method', palette='viridis').set_title(title)
     plt.show()
 
 
@@ -549,5 +549,5 @@ def compare_emotions(MED, COVID, title):
     MED = OrderedDict(sorted(normalize_dict(MED).items()))
     COVID = OrderedDict(sorted(normalize_dict(COVID).items()))
     df = create_plot_df(MED, COVID)
-    sns.barplot(x='emotion', y='percentage', data=df, hue='dataset').set_title(title)
+    sns.barplot(x='emotion', y='percentage', data=df, hue='dataset',palette='viridis').set_title(title)
     plt.show()
