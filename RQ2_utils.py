@@ -61,40 +61,6 @@ from keras.preprocessing.sequence import pad_sequences
 ################
 
 
-def save_variables(saved_path, unique_emotions, v_size, matrix):
-    with open(saved_path+'unique_emotions.txt', 'wb') as filehandle:
-        pickle.dump(unique_emotions, filehandle)
-    with open(saved_path+'v_size.txt', 'wb') as filehandle:
-        pickle.dump(v_size, filehandle)
-    with open(saved_path+'matrix.txt', 'wb') as filehandle:
-        pickle.dump(matrix, filehandle)
-
-
-def save_x_y(saved_path, X_train, X_test, y_train, y_test):
-    with open(saved_path+'X_train.txt', 'wb') as filehandle:
-        pickle.dump(X_train, filehandle)
-    with open(saved_path+'X_test.txt', 'wb') as filehandle:
-        pickle.dump(X_test, filehandle)
-    with open(saved_path+'y_train.txt', 'wb') as filehandle:
-        pickle.dump(y_train, filehandle)
-    with open(saved_path+'y_test.txt', 'wb') as filehandle:
-        pickle.dump(y_test, filehandle)
-
-
-def save_vectors(saved_path, C_vec, M_vec):
-    with open(saved_path+'C_vec.txt', 'wb') as filehandle:
-        pickle.dump(C_vec, filehandle)
-    with open(saved_path+'M_vec.txt', 'wb') as filehandle:
-        pickle.dump(M_vec, filehandle)
-
-
-def save_dfs(saved_path, COVID_df, MED_df):
-    with open(saved_path+'COVID_df.txt', 'wb') as filehandle:
-        pickle.dump(COVID_df, filehandle)
-    with open(saved_path+'MED_df.txt', 'wb') as filehandle:
-        pickle.dump(MED_df, filehandle)
-
-
 def load_variables(saved_path):
     with open(saved_path+'unique_emotions.txt', 'rb') as filehandle:
         unique_emotions = pickle.load(filehandle)
@@ -439,7 +405,7 @@ def plot_loss(history):
         df = df.append({'method': 'val_loss', 'Epoch #': i,
                         'Loss': history['val_loss'][i]}, ignore_index=True)
 
-    sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method',palette='viridis').set_title('Total Loss')
+    sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method').set_title('Total Loss')
     plt.show()
 
     denses = ['dense_loss', 'dense_1_loss', 'dense_2_loss', 'dense_3_loss',
@@ -460,7 +426,7 @@ def plot_loss(history):
             df = df.append({'method': 'val_loss', 'Epoch #': i, 'Loss': hvd[i]},
                            ignore_index=True)
 
-        sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method', palette='viridis').set_title('Loss for '+ titles[d])
+        sns.lineplot(x='Epoch #', y='Loss', data=df, hue='method').set_title('Loss for '+ titles[d])
         plt.show()
 
 
@@ -483,7 +449,7 @@ def plot_acc(history):
             df = df.append({'method': 'val_acc', 'Epoch #': i, 'Accuracy': hvd[i]},
                            ignore_index=True)
 
-        sns.lineplot(x='Epoch #', y='Accuracy', data=df, hue='method',palette='viridis').set_title('Accuracy for '+ titles[d])
+        sns.lineplot(x='Epoch #', y='Accuracy', data=df, hue='method').set_title('Accuracy for '+ titles[d])
         plt.show()
 
 
@@ -520,7 +486,7 @@ def compare_annotation(a, a_model, title):
         df = df.append({'method': 'trained model', 'emotion': emotion,
                         'count': count}, ignore_index=True)
 
-    sns.barplot(x='emotion', y='count', data=df, hue='method', palette='viridis').set_title(title)
+    sns.barplot(x='emotion', y='count', data=df, hue='method').set_title(title)
     plt.show()
 
 
@@ -549,5 +515,5 @@ def compare_emotions(MED, COVID, title):
     MED = OrderedDict(sorted(normalize_dict(MED).items()))
     COVID = OrderedDict(sorted(normalize_dict(COVID).items()))
     df = create_plot_df(MED, COVID)
-    sns.barplot(x='emotion', y='percentage', data=df, hue='dataset',palette='viridis').set_title(title)
+    sns.barplot(x='emotion', y='percentage', data=df, hue='dataset').set_title(title)
     plt.show()
