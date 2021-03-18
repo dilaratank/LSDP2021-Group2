@@ -14,7 +14,7 @@ This repository is structured as follows:
 - It includes a notebook where it is explained how the research is conducted, along with the code and the results. 
 - It includes a folder 'data', where the raw data is located.
 - It includes a folder for all research questions 'RQ1', 'RQ2', 'RQ3'. In these folders you can find preprocessed data, pre-trained models and other useful data to aid a specific research question.
-  - RQ1: This folder contains annotated data that is used in the evaluation, preprocessed data, and pre-saved results (graphs/plots).
+  - RQ1: This folder contains annotated data that is used in the evaluation and training, preprocessed data, a pre-trained model and pre-saved results (graphs/plots).
   - RQ2: This folder includes emotion scores, a pre-trained model and pre-processed data. 
   - RQ3: This folder includes annotated and pre-processed data, a pre-trained model and pre-saved results (graphs/plots). 
 - It includes utils for all three research questions. In these utils you can find the code and functions that are used to answer the different research questions.  
