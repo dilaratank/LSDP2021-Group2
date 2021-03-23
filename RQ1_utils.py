@@ -151,5 +151,5 @@ def accuracy(df, model):
                     number_of_well_predicted += 1
 
     print('Ground truth symptoms: ', number_of_symptoms)
-    print('Correctly predicted symptoms ', number_of_well_predicted)
+    print('Correctly predicted symptoms: ', number_of_well_predicted)
     print('accuracy: ', number_of_well_predicted / number_of_symptoms)
