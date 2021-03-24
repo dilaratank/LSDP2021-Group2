@@ -697,6 +697,22 @@ def annotate_with_model(X, model, unique_emotions):
     return OrderedDict(sorted(annotated.items()))
 
 
+def plot_annotation(a, title):
+    """
+    Input: a = dictionary with as key the emotion and as value the count,
+    title = title for the figure.
+    Plots annotation of a dataset.
+    """
+    # Transform dictionary to DataFrame
+    df = pd.DataFrame(a.items())
+
+    # Plot Dataframe.
+    xl = 'emotions'
+    yl = 'count'
+    sns.barplot(x=0, y=1, data=df,color='tab:blue').set(xlabel=xl, ylabel=yl, title=title)
+    plt.show()
+
+
 def compare_annotation(a, a_model, title):
     """
     Input: a = annotion with lexicon, a_model = annotation with trained model,
