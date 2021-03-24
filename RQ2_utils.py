@@ -146,7 +146,7 @@ def split_on_dialogue(file_path):
     Input: file path.
     Returns list with dialogues.
     """
-    with open(file_path) as f:
+    with open(file_path, encoding='utf8') as f:
         lines = f.readlines()
         f.close()
     i = 0
@@ -188,7 +188,7 @@ def create_emotions(emotions_path):
         # Add emotion to the list of unique emotions.
         unique_emotions.append(emotion)
 
-        with open(emotions_path+file, 'r') as f:
+        with open(emotions_path+file, 'r', encoding='utf8') as f:
             for line in f:
                 word, p = line.split('\t')
 
@@ -435,7 +435,7 @@ def embedded_vectors(GloVe_path, X_train, X_test):
 
     # Read each GloVe file into a dictionary.
     for file in files:
-        with open(GloVe_path+file, 'r') as file:
+        with open(GloVe_path+file, 'r', encoding='utf8') as file:
             for line in file:
                 records = line.split()
                 embed_dict[records[0]] = np.asarray(records[1:], dtype='float32')

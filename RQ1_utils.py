@@ -18,7 +18,7 @@ def split_on_dialogue(data_path):
     Format conversatoins: [[conversation1], [conversation2], ..., [conversation_n]]
     """
 
-    with open(data_path) as f:
+    with open(data_path, encoding='utf8') as f:
         lines = f.readlines()
         f.close()
 

@@ -2,3 +2,8 @@ __pycache__/
 .idea/
 .ipynb_checkpoints/
 RQ3/logs/
+data/
+RQ3/data/new_ICHI2016-TestData_label.tsv
+RQ3/data/icliniq_dialogue_questions.tsv
+RQ3/data/ICHI2016-TrainData.tsv
+RQ3/data/COVID-Dialogue-Dataset-English_questions.tsv
