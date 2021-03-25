@@ -3,7 +3,7 @@
 # SHELBY JHORAI (ID:11226374)
 #
 # CONTENT:
-# - Save and Load
+# - Load
 # - Imports
 # - Preprocessing
 # - Classification model
@@ -56,9 +56,9 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 
 
-################
-# SAVE AND LOAD
-################
+#######
+# LOAD
+#######
 
 
 def load_variables(saved_path):
@@ -272,13 +272,13 @@ def clean_text(raw_text):
     return cleaned
 
 
-def create_label(text, emotions):
+def annotate_with_lexicon(text, emotions):
     """
     Input: text = list of tokens, emotions = dictionary with as key a word
     and as value the corresponding emotion.
-    Returns list of emotions associated with the text.
+    Returns list of unique emotions associated with the text.
     """
-    return [emotions[token] for token in text if token in emotions.keys()]
+    return set([emotions[token] for token in text if token in emotions.keys()])
 
 
 def create_df(labelled):
@@ -336,8 +336,8 @@ def process_dataset(path, emotions):
         # Remove noise and lemmatize tokens
         text = clean_text(d)
         
-        # Create label with emotions
-        label = create_label(text, emotions)
+        # Annotate dialogues with lexicon
+        label = annotate_with_lexicon(text, emotions)
         
         # Add tuple of text and label to list if it is not in list yet.
         if (text, label) not in labelled:
@@ -651,10 +651,9 @@ def plot_acc(history):
 #############
 
 
-def annotate(df, unique_emotions):
+def convert_df_to_dict(df):
     """
-    Input: df = Dataframe with columns 'text' and 'labels',
-    unique_emotions = list of unique emotions.
+    Input: df = Dataframe with column 'labels'
     Returns dictionary with as key the emotion and as value the amount
     of occurences in the dataframe.
     """
@@ -666,9 +665,8 @@ def annotate(df, unique_emotions):
         # For each emotion, if the emotion occurs in the label
         # increase the count.
         
-        for emotion in unique_emotions:
-            if emotion in set(row):
-                annotated[emotion] += 1
+        for emotion in row:
+            annotated[emotion] += 1
 
     # Return sorted dictionary.
     return OrderedDict(sorted(annotated.items()))
