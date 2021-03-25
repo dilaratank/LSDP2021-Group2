@@ -12,7 +12,6 @@ The COVID-19 pandemic is a challenging time for all of us. The rapid spread and 
 # Structure
 This repository is structured as follows: 
 - It includes a notebook where it is explained how the research is conducted, along with the code and the results. 
-- It includes a folder 'data', where the raw data is located.
 - It includes a folder for all research questions 'RQ1', 'RQ2', 'RQ3'. In these folders you can find annotated data, pre-trained models and other useful data to aid a specific research question.
   - RQ1: This folder contains annotated data that is used in the evaluation and training, a pre-trained model and pre-saved results (graphs/plots).
   - RQ2: This folder includes emotion scores, a pre-trained model and pre-processed data. 
